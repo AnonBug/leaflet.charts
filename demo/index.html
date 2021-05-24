@@ -1,0 +1,122 @@
+<!--
+ * @Description: contents
+ * @Author: zyc
+ * @Date: 2021-05-24 10:03:00
+ * @LastEditTime: 2021-05-24 13:02:41
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="../lib/leaflet.css">
+    <script src="../lib/leaflet-src.js"></script>
+    <script src="../lib/echarts.js"></script>
+    <script src="../lib/d3.js"></script>
+    <script src="../dist/leaflet.charts.js"></script>
+    <style>
+        * {
+            margin: 0;
+        }
+
+        #container {
+            height: 700px;
+            width: 700px;
+            margin: 50px auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #btns {
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #mapid {
+            flex: auto;
+        }
+        button, label, input {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+
+        <div id="btns">
+            <span>
+                绘图模式
+                <label ><input name="mode" type="radio" id="d3" value="d3" checked=true>d3</label>
+                <label ><input name="mode" type="radio" value="echarts">echarts</label>
+            </span>
+            <span>
+                绘图类型
+                <button>饼状</button>
+                <button>环状</button>
+                <button>柱状</button>
+            </span>
+        </div>
+        <div id="mapid"></div>
+    </div>
+    <script>
+        // console.log(L.Charts);
+        // 新建地图对象
+        var mymap = L.map('mapid').setView([30.5123836308, 114.337991415], 10);
+
+        // 向地图对象添加图层
+        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+            id: 'mapbox/satellite-v9',
+            accessToken: 'pk.eyJ1IjoibWItYnVnIiwiYSI6ImNrOGVhOGhpcDAwb2EzbXFzZXBsNnpqcXMifQ.7AfUit-gumiVTrDVJPlYJg'
+        }).addTo(mymap);
+
+        let dataset = [], features = {}
+
+        // 标准数据格式
+        fetch('../assets/test.json')
+            .then(res => res.json())
+            .then(data => {
+                dataset = data
+                const charts = L.Charts(dataset, { type: 'pie', mode:getMode()})
+                features = charts.layer()
+                mymap.addLayer(features)
+            })
+
+        let btns = document.querySelector('#btns')
+        btns.addEventListener('click', (e) => {
+            const target = e.target
+            if (target.tagName === 'BUTTON') {
+                console.log(target);
+                let type = 'pie'
+                switch (target.innerText) {
+                    case '饼状':
+                        type = 'pie'
+                        break;
+                    case '环状':
+                        type = 'ring'
+                        break;
+                    case '柱状':
+                        type = 'bar'
+                        break;
+                }
+                mymap.removeLayer(features)
+                const charts = L.Charts(dataset, { type, mode:getMode() })
+                features = charts.layer()
+                mymap.addLayer(features)
+            }
+        })
+
+        function getMode() {
+            const radio = document.querySelector('#d3')
+            console.log(radio.checked);
+            return radio.checked ? 'd3' : 'echarts'
+        }
+
+    </script>
+</body>
+
+</html>
