@@ -2,7 +2,7 @@
  * @Description: contents
  * @Author: zyc
  * @Date: 2021-05-24 10:03:00
- * @LastEditTime: 2021-05-24 13:02:41
+ * @LastEditTime: 2021-05-26 10:27:20
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -105,6 +105,7 @@
                 }
                 mymap.removeLayer(features)
                 const charts = L.Charts(dataset, { type, mode:getMode() })
+                // const tuli = charts.getTuli() //  innerHTML
                 features = charts.layer()
                 mymap.addLayer(features)
             }

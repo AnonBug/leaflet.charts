@@ -2,7 +2,7 @@
  * @Description: contents
  * @Author: zyc
  * @Date: 2021-05-24 10:03:00
- * @LastEditTime: 2021-05-24 12:24:42
+ * @LastEditTime: 2021-05-26 10:55:13
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -38,7 +38,10 @@
         #mapid {
             flex: auto;
         }
-        button, label, input {
+
+        button,
+        label,
+        input {
             cursor: pointer;
         }
     </style>
@@ -50,8 +53,8 @@
         <div id="btns">
             <span>
                 绘图模式
-                <label ><input name="mode" type="radio" id="d3" value="d3" checked=true>d3</label>
-                <label ><input name="mode" type="radio" value="echarts">echarts</label>
+                <label><input name="mode" type="radio" id="d3" value="d3" checked=true>d3</label>
+                <label><input name="mode" type="radio" value="echarts">echarts</label>
             </span>
             <span>
                 绘图类型
@@ -73,6 +76,8 @@
             accessToken: 'pk.eyJ1IjoibWItYnVnIiwiYSI6ImNrOGVhOGhpcDAwb2EzbXFzZXBsNnpqcXMifQ.7AfUit-gumiVTrDVJPlYJg'
         }).addTo(mymap);
 
+        setPanes(mymap)
+
         let dataset = [], features = {}
 
         // 标准数据格式
@@ -80,7 +85,7 @@
             .then(res => res.json())
             .then(data => {
                 dataset = data
-                const charts = L.Charts(dataset, { type: 'pie', mode:getMode()})
+                const charts = L.Charts(dataset, { type: 'pie', mode: getMode() })
                 features = charts.layer()
                 mymap.addLayer(features)
             })
@@ -103,8 +108,9 @@
                         break;
                 }
                 mymap.removeLayer(features)
-                const charts = L.Charts(dataset, { type, mode:getMode() })
+                const charts = L.Charts(dataset, { type, mode: getMode() })
                 features = charts.layer()
+                console.log(features);
                 mymap.addLayer(features)
             }
         })
@@ -113,6 +119,24 @@
             const radio = document.querySelector('#d3')
             console.log(radio.checked);
             return radio.checked ? 'd3' : 'echarts'
+        }
+
+        function setPanes(map) {
+            /* 创建自定义窗格
+                    参考资料：https://leafletjs.com/examples/map-panes/
+                  */
+            map.createPane("basemap-polygon");
+            map.createPane("basemap-polyline");
+            map.createPane("basemap-point");
+            map.createPane("basemap-annotation");
+            map.getPane("basemap-polygon").style.zIndex = 190;
+            map.getPane("basemap-polyline").style.zIndex = 490;
+            map.getPane("basemap-point").style.zIndex = 590;
+            map.getPane("basemap-annotation").style.zIndex = 590;
+            map.getPane("basemap-polygon").style.pointerEvents = "none";
+            map.getPane("basemap-polyline").style.pointerEvents = "none";
+            map.getPane("basemap-point").style.pointerEvents = "none";
+            map.getPane("basemap-annotation").style.pointerEvents = "none";
         }
 
     </script>
