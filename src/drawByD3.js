@@ -2,7 +2,7 @@
  * @Description: 使用 d3 绘制图表
  * @Author: zyc
  * @Date: 2021-05-24 10:22:37
- * @LastEditTime: 2021-05-26 10:24:26
+ * @LastEditTime: 2021-05-27 11:15:20
  */
 
 // const d3 = require('d3')
@@ -21,12 +21,13 @@ class Draw {
         this.h = h
     }
     /**
-     * @description: 
-     * @param {*} dataset
-     * @param {Boolean} isRing 是否是空心环
+     * @description: 饼图
+     * @param {Number[]} dataset 数据
+     * @param {[]} fields 字段名
+     * @param {Boolean} isRing 是否有内环
      * @return {*}
      */
-    pie(dataset, isRing) {
+    pie(dataset, fields, isRing) {
         const {
             svg,
             w,
@@ -64,14 +65,27 @@ class Draw {
             .attr('font-size', '11px')
             .attr('fill', 'white')
             .attr("text-anchor", "middle")
-            .text(d => d.value)
+            .text((d, i) => `${fields[i]}\n${d.value} `)
+
     }
 
-    doughnut(dataset) {
-        this.pie(dataset, true)
+    /**
+     * @description: 圆环图
+     * @param {Number[]} dataset 数据
+     * @param {[]} fields 字段名
+     * @return {*}
+     */
+    doughnut(dataset, fields) {
+        this.pie(dataset, fields, true)
     }
 
-    bar(dataset) {
+    /**
+     * @description: 柱形图
+     * @param {Number[]} dataset 数据
+     * @param {[]} fields 字段名
+     * @return {*}
+     */
+    bar(dataset, fields) {
         const {
             svg,
             w,
@@ -84,7 +98,7 @@ class Draw {
         const xScale = d3.scaleBand()
             .domain(d3.range(dataset.length))
             .rangeRound([0, w])
-            .paddingInner(0.1)
+            .paddingInner(0.2)
 
         // 比例尺
         const yScale = d3.scaleLinear()
@@ -109,7 +123,7 @@ class Draw {
         // 添加注记
         bars.append("text")
             .attr('x', (d, i) => xScale.bandwidth() / 2)
-            .attr('y', d => 14)
+            .attr('y', d => -5)
             .attr("transform", (d, i) => `translate(${xScale(i)}, ${h - yScale(d)})`)
             .text(d => d)
             .attr('font-size', '11px')

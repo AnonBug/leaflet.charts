@@ -2,7 +2,7 @@
  * @Description: contents
  * @Author: zyc
  * @Date: 2021-05-24 10:03:00
- * @LastEditTime: 2021-05-26 10:55:13
+ * @LastEditTime: 2021-05-27 11:31:39
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -37,7 +37,28 @@
 
         #mapid {
             flex: auto;
+            position: relative;
         }
+
+        #legend{
+            position: absolute;
+            z-index: 9999;
+            left: 5px;
+            bottom: 5px;
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #legend span.title{
+            font-weight: 700;
+            font-size: 14px;
+        }
+
 
         button,
         label,
@@ -63,7 +84,11 @@
                 <button>柱状</button>
             </span>
         </div>
-        <div id="mapid"></div>
+        <div id="mapid">
+            <div id="legend">
+                <span class="title">图例</span>
+            </div>
+        </div>
     </div>
     <script>
         // console.log(L.Charts);
@@ -80,17 +105,40 @@
 
         let dataset = [], features = {}
 
+        const options = {
+            attribution: `统计图表`, draggable: true, // 允许拖动图标 
+        }
+        const events = {
+            dragend(e) {
+                console.log(this);
+                console.log(this.getLatLng());
+            },
+            add(e) {
+                console.log('add 事件执行了');
+            }
+        }
+
         // 标准数据格式
         fetch('../assets/test.json')
             .then(res => res.json())
             .then(data => {
                 dataset = data
-                const charts = L.Charts(dataset, { type: 'pie', mode: getMode() })
+                // const fields = data.fields
+                // console.log(fields);
+                const charts = L.Charts(dataset, { type: 'pie', mode: getMode() },options, events)
                 features = charts.layer()
                 mymap.addLayer(features)
+                legendDiv = charts.legend()
+                legendContainer.appendChild(legendDiv)
+
             })
 
         let btns = document.querySelector('#btns')
+
+        let legendDiv = null
+        const legendContainer = document.querySelector('#legend')
+
+        
         btns.addEventListener('click', (e) => {
             const target = e.target
             if (target.tagName === 'BUTTON') {
@@ -108,10 +156,12 @@
                         break;
                 }
                 mymap.removeLayer(features)
-                const charts = L.Charts(dataset, { type, mode: getMode() })
+                legendContainer.removeChild(legendDiv)
+                const charts = L.Charts(dataset, { type, mode: getMode() }, options, events)
                 features = charts.layer()
-                console.log(features);
                 mymap.addLayer(features)
+                legendDiv = charts.legend()
+                legendContainer.appendChild(legendDiv)
             }
         })
 

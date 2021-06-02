@@ -2,10 +2,12 @@
  * @Description: 用 echarts 绘制图表
  * @Author: zyc
  * @Date: 2021-05-24 10:57:59
- * @LastEditTime: 2021-05-24 12:48:20
+ * @LastEditTime: 2021-05-27 11:09:55
  */
 
 // const echarts = require('echarts')
+
+const COLOR = ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4', '#ea7ccc']
 
 class DrawByEcharts {
     constructor(className, w, h) {
@@ -19,15 +21,21 @@ class DrawByEcharts {
         this.myChart = echarts.init(div)
     }
 
-    pie(dataset, isRing) {
+    /**
+     * @description: 饼图
+     * @param {Number[]} dataset 数据
+     * @param {[]} fields 字段名
+     * @param {Boolean} isRing 是否有内环
+     * @return {*}
+     */    
+    pie(dataset, fields, isRing) {
         const option = {
             tooltip: {
                 trigger: 'item'
             },
             series: [{
-                name: '访问来源',
                 type: 'pie',
-                // radius: ['50%', '90%'],
+                // 是否是环状 pie
                 radius: isRing ? ['50%', '90%'] : ['100%'],
                 avoidLabelOverlap: false,
                 label: {
@@ -44,37 +52,29 @@ class DrawByEcharts {
                 labelLine: {
                     show: false
                 },
-                data: [{
-                        value: 1048,
-                        name: '搜索引擎'
-                    },
-                    {
-                        value: 735,
-                        name: '直接访问'
-                    },
-                    {
-                        value: 580,
-                        name: '邮件营销'
-                    },
-                    {
-                        value: 484,
-                        name: '联盟广告'
-                    },
-                    {
-                        value: 300,
-                        name: '视频广告'
-                    }
-                ]
+                data: dataset.map((item, index) => ({
+                    value: item,
+                    name: fields[index]
+                }))
             }]
         };
         this._setOption(option)
     }
 
-    bar(dataset) {
+    /**
+     * @description: 柱形图
+     * @param {Number[]} dataset 数据
+     * @param {[]} fields 字段名
+     * @return {*}
+     */    
+    bar(dataset, fields) {
         const option = {
+            tooltip: {
+                trigger: 'item'
+            },
             xAxis: {
                 type: 'category',
-                data: ['Mon', 'Tue', 'Wed']
+                data: fields
             },
             yAxis: {
                 type: 'value',
@@ -82,22 +82,12 @@ class DrawByEcharts {
 
             },
             series: [{
-                data: [{
-                    value: 120,
+                data: dataset.map((item, index) => ({
+                    value: item,
                     itemStyle: {
-                        color: '#5470c6'
+                        color: COLOR[index]
                     }
-                }, {
-                    value: 200,
-                    itemStyle: {
-                        color: '#91cc75'
-                    }
-                }, {
-                    value: 80,
-                    itemStyle: {
-                        color: '#fac858'
-                    }
-                }, ],
+                })),
                 type: 'bar'
             }]
         };
@@ -105,15 +95,21 @@ class DrawByEcharts {
         this._setOption(option)
     }
 
-    doughnut(dataset) {
-        this.pie(dataset, true)
+    /**
+     * @description: 圆环图
+     * @param {Number[]} dataset 数据
+     * @param {[]} fields 字段名
+     * @return {*}
+     */    
+    doughnut(dataset, fields) {
+        this.pie(dataset, fields, true)
     }
 
     /**
      * @description: 设置图形生效
-     * @param {*} option
+     * @param {{}} option
      * @return {*}
-     */    
+     */
     _setOption(option) {
         this.myChart.setOption(option)
     }
