@@ -1,5 +1,5 @@
 {
-  "name": "leaflet.charts",
+  "name": "leaflet-charts",
   "version": "0.0.1",
   "description": "根据坐标，向leaflet地图中添加统计图，拟支持饼图、柱形图等多种类型。可用于制作分区统计图。",
   "main": "./dist/leaflet.charts.js",
