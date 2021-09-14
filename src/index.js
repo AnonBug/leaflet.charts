@@ -2,7 +2,7 @@
  * @Description: 入口文件
  * @Author: zyc
  * @Date: 2021-05-24 09:57:08
- * @LastEditTime: 2021-05-27 11:32:32
+ * @LastEditTime: 2021-06-04 19:54:40
  */
 
 // 保留使用 d3 绘图的接口，以便能够自定义一些图表的绘制
@@ -124,7 +124,7 @@ class Charts {
                 }
             })
         }
-        return L.featureGroup(markers, {}) 
+        return L.featureGroup(markers, {})
     }
 
     /**
@@ -141,7 +141,7 @@ class Charts {
      *              只有 layer 被添加到 map 之后, 才能得到图例(在这之前, 并未绘图, 也就不存在图例了)
      * @param {*}
      * @return {Element}
-     */    
+     */
     legend() {
         const legend = document.createElement('div')
         legend.className = 'legend-count'

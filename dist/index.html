@@ -1,0 +1,195 @@
+<!--
+ * @Description: contents
+ * @Author: zyc
+ * @Date: 2021-05-24 10:03:00
+ * @LastEditTime: 2021-05-27 11:31:39
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="../node_modules/leaflet/dist/leaflet.css">
+    <script src="../node_modules/leaflet/dist/leaflet-src.js"></script>
+    <script src="../node_modules/echarts/dist/echarts.js"></script>
+    <script src="../node_modules/d3/dist/d3.js"></script>
+    <style>
+        * {
+            margin: 0;
+        }
+
+        #container {
+            height: 700px;
+            width: 700px;
+            margin: 50px auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #btns {
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #mapid {
+            flex: auto;
+            position: relative;
+        }
+
+        #legend{
+            position: absolute;
+            z-index: 9999;
+            left: 5px;
+            bottom: 5px;
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #legend span.title{
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+
+        button,
+        label,
+        input {
+            cursor: pointer;
+        }
+    </style>
+<script defer src="leaflet.charts.js"></script></head>
+
+<body>
+    <div id="container">
+
+        <div id="btns">
+            <span>
+                绘图模式
+                <label><input name="mode" type="radio" id="d3" value="d3" checked=true>d3</label>
+                <label><input name="mode" type="radio" value="echarts">echarts</label>
+            </span>
+            <span>
+                绘图类型
+                <button>饼状</button>
+                <button>环状</button>
+                <button>柱状</button>
+            </span>
+        </div>
+        <div id="mapid">
+            <div id="legend">
+                <span class="title">图例</span>
+            </div>
+        </div>
+    </div>
+    <script>
+        // console.log(L.Charts);
+        // 新建地图对象
+        var mymap = L.map('mapid').setView([30.5123836308, 114.337991415], 10);
+
+        // 向地图对象添加图层
+        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+            id: 'mapbox/satellite-v9',
+            accessToken: 'pk.eyJ1IjoibWItYnVnIiwiYSI6ImNrOGVhOGhpcDAwb2EzbXFzZXBsNnpqcXMifQ.7AfUit-gumiVTrDVJPlYJg'
+        }).addTo(mymap);
+
+        setPanes(mymap)
+
+        let dataset = [], features = {}
+
+        const options = {
+            attribution: `统计图表`, draggable: true, // 允许拖动图标 
+        }
+        const events = {
+            dragend(e) {
+                console.log(this);
+                console.log(this.getLatLng());
+            },
+            add(e) {
+                console.log('add 事件执行了');
+            }
+        }
+
+        // 标准数据格式
+        fetch('../assets/test.json')
+            .then(res => res.json())
+            .then(data => {
+                dataset = data
+                // const fields = data.fields
+                // console.log(fields);
+                const charts = L.Charts(dataset, { type: 'pie', mode: getMode() },options, events)
+                features = charts.layer()
+                mymap.addLayer(features)
+                legendDiv = charts.legend()
+                legendContainer.appendChild(legendDiv)
+
+            })
+
+        let btns = document.querySelector('#btns')
+
+        let legendDiv = null
+        const legendContainer = document.querySelector('#legend')
+
+        
+        btns.addEventListener('click', (e) => {
+            const target = e.target
+            if (target.tagName === 'BUTTON') {
+                console.log(target);
+                let type = 'pie'
+                switch (target.innerText) {
+                    case '饼状':
+                        type = 'pie'
+                        break;
+                    case '环状':
+                        type = 'ring'
+                        break;
+                    case '柱状':
+                        type = 'bar'
+                        break;
+                }
+                mymap.removeLayer(features)
+                legendContainer.removeChild(legendDiv)
+                const charts = L.Charts(dataset, { type, mode: getMode() }, options, events)
+                features = charts.layer()
+                mymap.addLayer(features)
+                legendDiv = charts.legend()
+                legendContainer.appendChild(legendDiv)
+            }
+        })
+
+        function getMode() {
+            const radio = document.querySelector('#d3')
+            console.log(radio.checked);
+            return radio.checked ? 'd3' : 'echarts'
+        }
+
+        function setPanes(map) {
+            /* 创建自定义窗格
+                    参考资料：https://leafletjs.com/examples/map-panes/
+                  */
+            map.createPane("basemap-polygon");
+            map.createPane("basemap-polyline");
+            map.createPane("basemap-point");
+            map.createPane("basemap-annotation");
+            map.getPane("basemap-polygon").style.zIndex = 190;
+            map.getPane("basemap-polyline").style.zIndex = 490;
+            map.getPane("basemap-point").style.zIndex = 590;
+            map.getPane("basemap-annotation").style.zIndex = 590;
+            map.getPane("basemap-polygon").style.pointerEvents = "none";
+            map.getPane("basemap-polyline").style.pointerEvents = "none";
+            map.getPane("basemap-point").style.pointerEvents = "none";
+            map.getPane("basemap-annotation").style.pointerEvents = "none";
+        }
+
+    </script>
+</body>
+
+</html>
